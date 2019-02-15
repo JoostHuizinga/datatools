@@ -124,12 +124,118 @@ struct stats{
     float third_q;
 };
 
-inline float getPercentile(const std::vector<float>& container, float percentile){
+/**
+ * Returns the indicated percentile from a sorted container of floats.
+ */
+inline float getPercentileFromSorted(const std::vector<float>& container, float percentile){
     float indexf = (float(container.size()) - 1.0) * percentile;
     float indexl = std::floor(indexf);
     float indexh = std::ceil(indexf);
     float remain = indexf - indexl;
     return container[(std::size_t)indexl]*remain + container[(std::size_t)indexh]*(1-remain);
+}
+
+
+
+inline float getMedianDestructive(std::vector<float>& container){
+	size_t mid = container.size()/2;
+	std::nth_element(container.begin(), container.begin() + mid, container.end());
+	float median = container[mid];
+	if(container.size() % 2 == 0){
+		mid -= 1;
+		std::nth_element(container.begin(), container.begin() + mid, container.end());
+		median = (median + container[mid])/2.0f;
+	}
+	return median;
+//	size_t low = 0;
+//	size_t high = container.size()-1;
+//	size_t median = (low + high) / 2;
+//	size_t middle, ll, hh;
+//	low = 0;
+//	while(true) {
+//		/* One element only */
+//		if (high <= low) return container[median];
+//		/* Two elements only */
+//		if (high == low + 1) {
+//			if (container[low] > container[high])
+//				container.swap(low, high);
+//			ELEM_SWAP(container[low], container[high]) ;
+//			return container[median] ;
+//		}
+//		/* Find median of low, middle and high items; swap into position low */
+//		middle = (low + high) / 2;
+//		if (container[middle] > container[high])
+//		ELEM_SWAP(container[middle], container[high]) ;
+//		if (container[low] > container[high])
+//		ELEM_SWAP(container[low], container[high]) ;
+//		if (container[middle] > container[low])
+//		ELEM_SWAP(container[middle], container[low]) ;
+//		/* Swap low item (now in position middle) into position (low+1) */
+//		ELEM_SWAP(container[middle], container[low+1]) ;
+//		/* Nibble from each end towards middle, swapping items when stuck */
+//		ll = low + 1;
+//		hh = high;
+//		for (;;) {
+//		do ll++; while (container[low] > container[ll]) ;
+//		do hh--; while (container[hh] > container[low]) ;
+//		if (hh < ll)
+//		break;
+//		ELEM_SWAP(container[ll], container[hh]) ;
+//		}
+//		/* Swap middle item (in position low) back into correct position */
+//		ELEM_SWAP(container[low], container[hh]) ;
+//		/* Re-set active partition */
+//		if (hh <= median)
+//		low = ll;
+//		if (hh >= median)
+//		high = hh - 1;
+//	}
+//	return container[median] ;
+}
+
+inline float getMadDestructive(std::vector<float>& container){
+	if(container.size() == 1) return 0;
+	size_t mid = container.size()/2;
+	float median = getMedianDestructive(container);
+	for(size_t obj_i=0; obj_i<container.size(); ++obj_i){
+		container[obj_i] = abs(container[obj_i] - median);
+	}
+
+	size_t low = mid;
+	size_t high = mid;
+//	std::cout << "Container: [";
+//	for (size_t i=0; i<container.size(); ++i){
+//		std::cout << container[i];
+//		if (i!= container.size()-1) std::cout << ", ";
+//	}
+//	std::cout << "]" << std::endl;
+//
+//	std::cout << "mid " << mid << ": "<< container[mid] << std::endl;
+	while(high - low < mid){
+		if (low == 0){
+			high += 1;
+//			std::cout << "high " << low << ": " << container[high] << std::endl;
+		} else if(high == container.size()-1){
+			low -= 1;
+//			std::cout << "low " << low << ": " << container[low] << std::endl;
+		} else if (container[low-1] < container[high+1]){
+			low -= 1;
+//			std::cout << "low " << low << ": " << container[low] << std::endl;
+		} else {
+			high += 1;
+//			std::cout << "high " << low << ": " << container[high] << std::endl;
+		}
+	}
+//	std::cout << "Final values:" << std::endl;
+//	std::cout << "low " << low << ": " << container[low] << std::endl;
+//	std::cout << "high " << low << ": " << container[high] << std::endl;
+	if(container.size() % 2 == 0){
+		return (container[low] + container[high]) / 2.0;
+	} else {
+		return std::max(container[high], container[low]);
+	}
+//	mad = getMedianAndPartialSort(container);
+//	return mad;
 }
 
 inline stats sortAndCalcStats(std::vector<float>& container){
@@ -138,9 +244,9 @@ inline stats sortAndCalcStats(std::vector<float>& container){
     result.min = container[0];
     result.max = container[container.size()-1];
     result.avg = average(container);
-    result.median = getPercentile(container, 0.5);
-    result.first_q = getPercentile(container, 0.25);
-    result.third_q = getPercentile(container, 0.75);
+    result.median = getPercentileFromSorted(container, 0.5);
+    result.first_q = getPercentileFromSorted(container, 0.25);
+    result.third_q = getPercentileFromSorted(container, 0.75);
     return result;
 }
 

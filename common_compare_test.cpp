@@ -62,9 +62,9 @@ BOOST_FIXTURE_TEST_CASE(misc_compare_test, ArgsFixture)
     BOOST_CHECK_CLOSE(l1diff(vector1, vector2), 0.2222222222222222f, 0.001);
     BOOST_CHECK_CLOSE(multiply(3.0f, 4.0f), 12.0f, 0.001);
     BOOST_CHECK_CLOSE(mult(vector1), 0.0003628800000000001f, 0.001);
-    BOOST_CHECK_CLOSE(getPercentile(vector1, 0.5f), 0.5f, 0.001);
-    BOOST_CHECK_CLOSE(getPercentile(vector1, 0.75f), 0.69999999999999996f, 0.001);
-    BOOST_CHECK_CLOSE(getPercentile(vector1, 0.25f), 0.29999999999999999f, 0.001);
+    BOOST_CHECK_CLOSE(getPercentileFromSorted(vector1, 0.5f), 0.5f, 0.001);
+    BOOST_CHECK_CLOSE(getPercentileFromSorted(vector1, 0.75f), 0.69999999999999996f, 0.001);
+    BOOST_CHECK_CLOSE(getPercentileFromSorted(vector1, 0.25f), 0.29999999999999999f, 0.001);
 
     stats result = sortAndCalcStats(vector2);
     BOOST_CHECK_EQUAL(result.min, 0.1f);
@@ -73,6 +73,58 @@ BOOST_FIXTURE_TEST_CASE(misc_compare_test, ArgsFixture)
     BOOST_CHECK_EQUAL(result.median, 0.5f);
     BOOST_CHECK_EQUAL(result.first_q, 0.29999999999999999f);
     BOOST_CHECK_EQUAL(result.third_q, 0.69999999999999996f);
+
+    std::cout << "MAD test 0" << std::endl;
+    float median = getMedianDestructive(vector2);
+    BOOST_CHECK_EQUAL(median, 0.5f);
+    float mad = getMadDestructive(vector2);
+    BOOST_CHECK_CLOSE(mad, 0.2f, 0.00001);
+
+    std::vector<float> vector4;
+    vector4.push_back(0.1f); //|0.1 - 0.7| = 0.6
+    vector4.push_back(0.2f); //|0.2 - 0.7| = 0.5
+    vector4.push_back(0.7f); //|0.7 - 0.7| = 0.0 <- median
+    vector4.push_back(0.8f); //|0.8 - 0.7| = 0.1
+    vector4.push_back(1.0f); //|1.0 - 0.7| = 0.3 <- mad
+
+    std::cout << "MAD test 1" << std::endl;
+    median = getMedianDestructive(vector4);
+    BOOST_CHECK_EQUAL(median, 0.7f);
+    mad = getMadDestructive(vector4);
+    BOOST_CHECK_CLOSE(mad, 0.3f, 0.00001);
+
+    std::cout << "MAD test 2" << std::endl;
+    std::vector<float> source;
+    source.push_back(2.1f);
+    std::vector<float> vector5 = source;
+    median = getMedianDestructive(vector5);
+    BOOST_CHECK_EQUAL(median, 2.1f);
+    mad = getMadDestructive(vector5);
+    BOOST_CHECK_EQUAL(mad, 0.0f);
+
+    std::cout << "MAD test 3" << std::endl;
+    source.push_back(1.7f);
+    vector5 = source;
+    median = getMedianDestructive(vector5);
+    BOOST_CHECK_CLOSE(median, 1.9f, 0.0001);
+    mad = getMadDestructive(vector5);
+    BOOST_CHECK_CLOSE(mad, 0.2f, 0.0001);
+
+    std::cout << "MAD test 4" << std::endl;
+    source.push_back(0.9f);
+    vector5 = source;
+    median = getMedianDestructive(vector5);
+    BOOST_CHECK_EQUAL(median, 1.7f);
+    mad = getMadDestructive(vector5);
+    BOOST_CHECK_CLOSE(mad, 0.4f, 0.0001);
+
+    std::cout << "MAD test 5" << std::endl;
+    source.push_back(0.8f);
+    vector5 = source;
+    median = getMedianDestructive(vector5);
+    BOOST_CHECK_CLOSE(median, 1.3f, 0.0001);
+    mad = getMadDestructive(vector5);
+    BOOST_CHECK_CLOSE(mad, 0.45f, 0.0001);
 
 }
 
