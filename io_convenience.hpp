@@ -17,8 +17,13 @@
 
 // Boost includes
 #include <boost/foreach.hpp>
+
+// Fix for a bug in boost 1.55
+// See: https://codeyarns.com/2017/09/20/undefined-reference-to-boost-copy_file/
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 // Sferes includes
 #include <sferes/dbg/dbg.hpp>
