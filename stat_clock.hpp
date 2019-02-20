@@ -7,8 +7,8 @@
 #include <sferes/dbg/dbg.hpp>
 
 // Module includes
-#include <modules/misc/clock.hpp>
-#include <modules/misc/stat_printer.hpp>
+#include <modules/datatools/clock.hpp>
+#include <modules/datatools/stat_printer.hpp>
 
 namespace sferes
 {
