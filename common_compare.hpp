@@ -73,6 +73,13 @@ inline void merge(ContainerType& c1, const ContainerType& c2){
 	c1.insert(c1.end(), c2.begin(), c2.end());
 }
 
+template<typename ContainerType>
+inline void merge(const ContainerType& c1, const ContainerType& c2, ContainerType& c3){
+	c3.clear();
+	c3.insert(c3.end(), c1.begin(), c1.end());
+	c3.insert(c3.end(), c2.begin(), c2.end());
+}
+
 inline int mod(int a, int b){
 	return (a%b+b)%b;
 }
@@ -464,6 +471,22 @@ struct values
 		return i1->fit().values(_k) > i2->fit().values(_k);
 	}
 	size_t _k;
+};
+
+
+class pair_lex: public compare<performance_mod>
+{
+public:
+    template<typename I1, typename I2>
+    bool operator() (const std::pair<I1, I2> i1, const std::pair<I1, I2> i2) const
+    {
+        // first, compare the main objective
+        if (i1.first < i2.first) return this->_smaller;
+        if (i1.first > i2.first) return this->_greater;
+        if (i1.second < i2.second) return this->_smaller;
+        if (i1.second > i2.second) return this->_greater;
+        return this->_equal;
+    }
 };
 
 
