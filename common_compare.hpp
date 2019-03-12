@@ -84,15 +84,37 @@ inline int mod(int a, int b){
 	return (a%b+b)%b;
 }
 
+/**
+ * Basic function for calculating n choose r for unsigned integers.
+ *
+ * If debug is enabled, throws when r equals zero or when r is greater than n.
+ */
+inline size_t nCr(size_t n, size_t r ){
+	dbg::assertion(DBG_ASSERTION(r <= n));
+	dbg::assertion(DBG_ASSERTION(r > 0));
+    if (r * 2 > n) {
+    	r = n - r;
+    }
+    size_t result = n;
+    for( size_t i = 2; i <= r; ++i ) {
+        result *= (n - i) + 1;
+        dbg::assertion(DBG_ASSERTION(result % i == 0));
+        result /= i;
+    }
+    return result;
+}
+
 inline float l1diff(const std::vector<float>& container1, const std::vector<float>& container2){
     dbg::assertion(DBG_ASSERTION(container1.size() == container2.size()));
-    dbg::out(dbg::info, "l1diff") << "container1 size: " << container1.size() << " container2 size: " <<  container2.size() << std::endl;
+    dbg::out(dbg::info, "l1diff") << "container1 size: " << container1.size()
+    		<< " container2 size: " <<  container2.size() << std::endl;
     float result=0;
     std::vector<float>::const_iterator it1;
     std::vector<float>::const_iterator it2;
     for(it1 = container1.begin(), it2 = container2.begin(); it1 != container1.end(); ++it1, ++it2){
         result += std::fabs(float(*it1) - float(*it2));
-        dbg::out(dbg::info, "l1diff") << "container1 value: " << float(*it1) << " container2 value: " <<  float(*it2) << " absdiff: " << std::fabs(float(*it1) - float(*it2)) << std::endl;
+        dbg::out(dbg::info, "l1diff") << "container1 value: " << float(*it1)
+        		<< " container2 value: " <<  float(*it2) << " absdiff: " << std::fabs(float(*it1) - float(*it2)) << std::endl;
     }
     return result / float(container1.size());
 }

@@ -126,6 +126,12 @@ BOOST_FIXTURE_TEST_CASE(misc_compare_test, ArgsFixture)
     mad = getMadDestructive(vector5);
     BOOST_CHECK_CLOSE(mad, 0.45f, 0.0001);
 
+    // Test ncr
+    BOOST_CHECK_EQUAL(nCr(2, 1), 2);
+    BOOST_CHECK_EQUAL(nCr(3, 1), 3);
+    BOOST_CHECK_EQUAL(nCr(3, 2), 3);
+    BOOST_CHECK_EQUAL(nCr(4, 2), 6);
+    BOOST_CHECK_EQUAL(nCr(17, 12), 6188);
 }
 
 
